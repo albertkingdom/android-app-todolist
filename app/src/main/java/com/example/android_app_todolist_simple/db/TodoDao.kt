@@ -1,7 +1,7 @@
 package com.example.android_app_todolist_simple.db
 
 import androidx.room.*
-import com.example.android_app_todolist_simple.todolist.Todo
+
 
 @Dao
 interface TodoDao {

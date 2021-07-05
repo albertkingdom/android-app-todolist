@@ -25,7 +25,7 @@ class TodoAdapter(private val todolist:MutableList<Todo>):RecyclerView.Adapter<T
          * bind the data and viewholder
          */
         val currentTodo = todolist[position]
-        holder.titleView.text = todolist[position].title
+        holder.titleView.text = todolist[position].todoTitle
         holder.isCheckView.isChecked = todolist[position].isChecked
         toggleStrikeThrough(holder.titleView, holder.isCheckView.isChecked)
 
