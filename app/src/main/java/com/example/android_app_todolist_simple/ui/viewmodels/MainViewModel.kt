@@ -14,6 +14,8 @@ import javax.inject.Inject
 //ViewModelInject is deprecated
 @HiltViewModel
 class MainViewModel @Inject constructor(val mainRepository: MainRepository) : ViewModel() {
+
+    // ViewModelScope is an extension property to the ViewModel class that automatically cancels its child coroutines when the ViewModel is destroyed.
     fun insertTodo(todo: Todo) = viewModelScope.launch {
         mainRepository.insertTodo(todo)
     }
@@ -23,6 +25,6 @@ class MainViewModel @Inject constructor(val mainRepository: MainRepository) : Vi
     suspend fun getAllTodos()=
         mainRepository.getAllTodos()
 
-
+    suspend fun updateTodo(todo: Todo) = mainRepository.updateTodo(todo)
 
 }

@@ -1,7 +1,9 @@
 package com.example.android_app_todolist_simple.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
@@ -24,20 +26,33 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     private val viewModel: MainViewModel by viewModels()
     lateinit var todoAdapter: TodoAdapterNew
 
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // recycler view setting
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerview)
 
-        val todolist: MutableList<Todo_not> = mutableListOf()
-        todoAdapter = TodoAdapterNew()
+        /**
+         * pass a func to adapter
+         */
+        todoAdapter = TodoAdapterNew {
+            lifecycle.coroutineScope.launch { completeTodo(it) }
+        }
 
         recyclerView.adapter = todoAdapter
 
 
         // button [addtodo] onClick
-
 
         lifecycle.coroutineScope.launch {
             viewModel.getAllTodos().collect {
@@ -57,5 +72,9 @@ class ListFragment : Fragment(R.layout.fragment_list) {
             todoTitle.clear()
         }
 
+    }
+
+    private suspend fun completeTodo(todo:Todo){
+        viewModel.updateTodo(todo)
     }
 }

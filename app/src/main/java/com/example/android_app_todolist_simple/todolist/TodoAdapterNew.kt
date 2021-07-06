@@ -1,5 +1,6 @@
 package com.example.android_app_todolist_simple.todolist
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.android_app_todolist_simple.R
 import com.example.android_app_todolist_simple.db.Todo
 
-class TodoAdapterNew(): ListAdapter<Todo, TodoAdapterNew.TodoViewHolder>(DiffCallback) {
+class TodoAdapterNew(private val onItemClicked: (Todo) -> Unit):
+    ListAdapter<Todo, TodoAdapterNew.TodoViewHolder>(DiffCallback) {
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<Todo>() {
             override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
@@ -38,8 +40,25 @@ class TodoAdapterNew(): ListAdapter<Todo, TodoAdapterNew.TodoViewHolder>(DiffCal
         var currentTodo = getItem(position)
         holder.titleView.text = currentTodo.todoTitle
         holder.isCheckView.isChecked = currentTodo.isChecked
-//        toggleStrikeThrough(holder.titleView, holder.isCheckView.isChecked)
+       toggleStrikeThrough(holder.titleView, holder.isCheckView.isChecked)
+
+
+        holder.isCheckView.setOnCheckedChangeListener { _, isChecked ->
+            toggleStrikeThrough(holder.titleView, holder.isCheckView.isChecked)
+            currentTodo.isChecked = !currentTodo.isChecked
+            onItemClicked(currentTodo)
+        }
     }
 
-
+    /**
+     * add/ remove line through to todoTitle
+     */
+    private fun toggleStrikeThrough(todoTitle:TextView,isChecked:Boolean){
+        // css: line through
+        if(isChecked){
+            todoTitle.paintFlags = todoTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        }else{
+            todoTitle.paintFlags = todoTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+        }
+    }
 }

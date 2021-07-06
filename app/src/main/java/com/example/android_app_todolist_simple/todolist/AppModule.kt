@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule  {
-    @Singleton
+    @Singleton // Tell Dagger-Hilt to create a singleton accessible everywhere in ApplicationCompenent (i.e. everywhere in the application)
     @Provides
     fun provideTodoDatabase(
         @ApplicationContext app: Context
@@ -23,9 +23,9 @@ object AppModule  {
         app,
         TodoDatabase::class.java,
         TODO_DATABASE_NAME
-    ).build()
+    ).build() // The reason we can construct a database for the repo
 
     @Singleton
     @Provides
-    fun provideTodoDao(db: TodoDatabase) = db.getTodoDao()
+    fun provideTodoDao(db: TodoDatabase) = db.getTodoDao() // The reason we can implement a Dao for the database
 }
