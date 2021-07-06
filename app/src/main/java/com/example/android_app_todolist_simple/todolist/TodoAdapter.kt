@@ -8,8 +8,10 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android_app_todolist_simple.R
+import com.example.android_app_todolist_simple.db.Todo
+import kotlinx.coroutines.flow.Flow
 
-class TodoAdapter(private val todolist:MutableList<Todo>):RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
+class TodoAdapter(private val todolist:List<Todo>):RecyclerView.Adapter<TodoAdapter.ViewHolder>() {
     class ViewHolder(view:View):RecyclerView.ViewHolder(view){
         val titleView = view.findViewById<TextView>(R.id.todoTitle)
         val isCheckView  = view.findViewById<CheckBox>(R.id.todoCheck)
@@ -24,7 +26,7 @@ class TodoAdapter(private val todolist:MutableList<Todo>):RecyclerView.Adapter<T
         /**
          * bind the data and viewholder
          */
-        val currentTodo = todolist[position]
+        var currentTodo = todolist[position]
         holder.titleView.text = todolist[position].todoTitle
         holder.isCheckView.isChecked = todolist[position].isChecked
         toggleStrikeThrough(holder.titleView, holder.isCheckView.isChecked)
@@ -55,18 +57,18 @@ class TodoAdapter(private val todolist:MutableList<Todo>):RecyclerView.Adapter<T
         }
     }
 
-    fun addtodo(todo:Todo){
-        todolist.add(todo)
-        // update the recyclerview
-        notifyItemInserted(todolist.size-1)
-
-    }
-    fun delDoneTodo(){
-        todolist.removeAll { todo ->
-            todo.isChecked
-        }
-        // update the recyclerview
-        notifyDataSetChanged()
-    }
+//    fun addtodo(todo:Todo){
+//        todolist.add(todo)
+//        // update the recyclerview
+//        notifyItemInserted(todolist.size-1)
+//
+//    }
+//    fun delDoneTodo(){
+//        todolist.removeAll { todo ->
+//            todo.isChecked
+//        }
+//        // update the recyclerview
+//        notifyDataSetChanged()
+//    }
 
 }

@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "todos")
 data class Todo (
-    @PrimaryKey(autoGenerate = true) val id:Int=0,
+    @PrimaryKey(autoGenerate = true) val id:Int,
     val todoTitle: String,
-    val isChecked: Boolean
+    var isChecked: Boolean
 )
