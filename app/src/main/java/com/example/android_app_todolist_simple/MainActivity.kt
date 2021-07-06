@@ -18,13 +18,13 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     lateinit var todoAdapter: TodoAdapter
-    @Inject
-    lateinit var todoDAO: TodoDao
+//    @Inject
+//    lateinit var todoDAO: TodoDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d("runDao", "RUNDAO: ${todoDAO.hashCode()}")
+//        Log.d("runDao", "RUNDAO: ${todoDAO.hashCode()}")
 
         // recycler view setting
         val recyclerView: RecyclerView = findViewById(R.id.recyclerview)
