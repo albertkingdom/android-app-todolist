@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.android_app_todolist_simple.R
 import com.example.android_app_todolist_simple.db.Todo
 
+/**
+ * todo: refactor with viewbinding and listadapter
+ */
 class TodoAdapterNew(private val onItemClicked: (Todo) -> Unit):
     ListAdapter<Todo, TodoAdapterNew.TodoViewHolder>(DiffCallback) {
     companion object {

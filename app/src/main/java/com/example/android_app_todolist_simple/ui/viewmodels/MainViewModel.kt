@@ -25,6 +25,8 @@ class MainViewModel @Inject constructor(val mainRepository: MainRepository) : Vi
     suspend fun getAllTodos()=
         mainRepository.getAllTodos()
 
-    suspend fun updateTodo(todo: Todo) = mainRepository.updateTodo(todo)
+   fun updateTodo(todo: Todo) =viewModelScope.launch {
+        mainRepository.updateTodo(todo)
+    }
 
 }

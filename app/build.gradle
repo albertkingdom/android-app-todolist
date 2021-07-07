@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -31,6 +32,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding = true
     }
 }
 
@@ -81,6 +85,8 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:$fragment_version")
 
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.4'
+
+
 
 }
 //kapt {

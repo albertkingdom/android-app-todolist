@@ -1,7 +1,8 @@
-package com.example.android_app_todolist_simple
+package com.example.android_app_todolist_simple.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.android_app_todolist_simple.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

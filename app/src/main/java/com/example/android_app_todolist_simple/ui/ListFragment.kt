@@ -1,14 +1,13 @@
 package com.example.android_app_todolist_simple.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android_app_todolist_simple.R
 import com.example.android_app_todolist_simple.db.Todo
@@ -16,6 +15,7 @@ import com.example.android_app_todolist_simple.todolist.Todo_not
 import com.example.android_app_todolist_simple.todolist.TodoAdapter
 import com.example.android_app_todolist_simple.todolist.TodoAdapterNew
 import com.example.android_app_todolist_simple.ui.viewmodels.MainViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
@@ -36,6 +36,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -46,13 +47,13 @@ class ListFragment : Fragment(R.layout.fragment_list) {
          * pass a func to adapter
          */
         todoAdapter = TodoAdapterNew {
-            lifecycle.coroutineScope.launch { completeTodo(it) }
+            completeTodo(it)
         }
 
         recyclerView.adapter = todoAdapter
 
 
-        // button [addtodo] onClick
+
 
         lifecycle.coroutineScope.launch {
             viewModel.getAllTodos().collect {
@@ -60,21 +61,35 @@ class ListFragment : Fragment(R.layout.fragment_list) {
             }
         }
 
-
+        // click add button to add new todo
         view.findViewById<Button>(R.id.btnAddtodo).setOnClickListener {
             val todoTitle = view.findViewById<EditText>(R.id.newTodo).text
-            println("new todo: $todoTitle")
+
             /**
              * id:0 will auto increment
              */
-            viewModel.insertTodo(Todo(0, todoTitle.toString(), false))
+            if (todoTitle.isNotEmpty()) {
+                viewModel.insertTodo(Todo(0, todoTitle.toString(), false))
+            }
 
             todoTitle.clear()
         }
 
+
+        view.findViewById<FloatingActionButton>(R.id.add_task).setOnClickListener {
+            findNavController().navigate(ListFragmentDirections.actionListFragmentToAddEditFragment())
+        }
+        setHasOptionsMenu(true)
+    }
+    // menu
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_tasks, menu)
+
+
     }
 
-    private suspend fun completeTodo(todo:Todo){
+    private fun completeTodo(todo: Todo) {
         viewModel.updateTodo(todo)
     }
+
 }
