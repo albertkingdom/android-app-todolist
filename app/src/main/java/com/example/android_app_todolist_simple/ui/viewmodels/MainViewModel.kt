@@ -33,6 +33,7 @@ class MainViewModel @Inject constructor(val mainRepository: MainRepository) : Vi
         mainRepository.updateTodo(todo)
     }
 
+    fun getSpecificTodo(id:Int) =  mainRepository.getSpecificTodo(id)
 
 
 }

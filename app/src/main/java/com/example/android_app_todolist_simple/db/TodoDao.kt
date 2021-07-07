@@ -17,4 +17,8 @@ interface TodoDao {
 
     @Update
     suspend fun update(todo: Todo)
+
+    @Query("SELECT * FROM todos WHERE id = :id")
+    fun getSpecificTodo(id:Int):Flow<Todo>
+
 }

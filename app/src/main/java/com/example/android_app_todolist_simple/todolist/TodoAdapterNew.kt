@@ -16,7 +16,7 @@ import com.example.android_app_todolist_simple.db.Todo
 /**
  * todo: refactor with viewbinding and listadapter
  */
-class TodoAdapterNew(private val onItemClicked: (Todo) -> Unit):
+class TodoAdapterNew(private val onItemClicked:(Todo)->Unit, private val onEditTodo:(Todo)->Unit):
     ListAdapter<Todo, TodoAdapterNew.TodoViewHolder>(DiffCallback) {
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<Todo>() {
@@ -45,11 +45,16 @@ class TodoAdapterNew(private val onItemClicked: (Todo) -> Unit):
         holder.isCheckView.isChecked = currentTodo.isChecked
        toggleStrikeThrough(holder.titleView, holder.isCheckView.isChecked)
 
-
+        // click checkbox
         holder.isCheckView.setOnCheckedChangeListener { _, isChecked ->
             toggleStrikeThrough(holder.titleView, holder.isCheckView.isChecked)
             currentTodo.isChecked = !currentTodo.isChecked
             onItemClicked(currentTodo)
+        }
+
+        // click todo title
+        holder.titleView.setOnClickListener {
+            onEditTodo(currentTodo)
         }
     }
 

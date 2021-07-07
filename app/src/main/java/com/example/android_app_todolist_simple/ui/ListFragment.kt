@@ -11,6 +11,7 @@ import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android_app_todolist_simple.R
+import com.example.android_app_todolist_simple.databinding.FragmentListBinding
 import com.example.android_app_todolist_simple.db.Todo
 
 import com.example.android_app_todolist_simple.todolist.TodoAdapter
@@ -26,7 +27,8 @@ import kotlinx.coroutines.launch
 class ListFragment : Fragment(R.layout.fragment_list) {
     private val viewModel: MainViewModel by viewModels()
     lateinit var todoAdapter: TodoAdapterNew
-
+    private var _binding: FragmentListBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,16 +42,17 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        _binding = FragmentListBinding.bind(view)
         // recycler view setting
-        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerview)
+        val recyclerView: RecyclerView = binding.recyclerview
 
         /**
-         * pass a func to adapter
+         * pass lambda functions to adapter
          */
-        todoAdapter = TodoAdapterNew {
-            completeTodo(it)
-        }
+        todoAdapter = TodoAdapterNew(
+            onItemClicked = ::completeTodo,
+            onEditTodo = ::editTodo
+        )
 
         recyclerView.adapter = todoAdapter
 
@@ -62,26 +65,19 @@ class ListFragment : Fragment(R.layout.fragment_list) {
             }
         }
 
-        // click add button to add new todo
-        view.findViewById<Button>(R.id.btnAddtodo).setOnClickListener {
-            val todoTitle = view.findViewById<EditText>(R.id.newTodo).text
-
-            /**
-             * id:0 will auto increment
-             */
-            if (todoTitle.isNotEmpty()) {
-                viewModel.insertTodo(Todo(0, todoTitle.toString(), false))
-            }
-
-            todoTitle.clear()
-        }
 
         // click button to navigate to add_edit fragment
-        view.findViewById<FloatingActionButton>(R.id.add_task).setOnClickListener {
-            findNavController().navigate(ListFragmentDirections.actionListFragmentToAddEditFragment())
+        binding.addTask.setOnClickListener {
+            findNavController().navigate(
+                ListFragmentDirections.actionListFragmentToAddEditFragment(
+                    -1
+                )
+            )
         }
         setHasOptionsMenu(true)
     }
+
+
     // menu
     // https://developer.android.com/training/appbar/action-views#action-view
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -97,7 +93,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
         //get search query input and do something
         //https://stackoverflow.com/questions/55949305/how-to-properly-retrieve-data-from-searchview-in-kotlin
-        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
                 viewModel.searchQuery.value = newText
                 return true
@@ -113,15 +109,28 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
     // click menu options
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
-            R.id.action_sort_by_name -> { true }
-            R.id.action_hide_completed -> {true}
-            R.id.action_del_all_completed ->{true}
-            else->super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_sort_by_name -> {
+                true
+            }
+            R.id.action_hide_completed -> {
+                true
+            }
+            R.id.action_del_all_completed -> {
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
+
     private fun completeTodo(todo: Todo) {
         viewModel.updateTodo(todo)
     }
+
+    private fun editTodo(todo: Todo) {
+        val action = ListFragmentDirections.actionListFragmentToAddEditFragment(todo.id)
+        findNavController().navigate(action)
+    }
+
 
 }
