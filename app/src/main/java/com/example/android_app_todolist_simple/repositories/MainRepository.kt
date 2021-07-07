@@ -9,9 +9,11 @@ class MainRepository @Inject constructor(
 ) {
     suspend fun insertTodo(todo: Todo)=todoDao.insert(todo)
 
-    suspend fun getAllTodos() = todoDao.getAllTodos()
+    fun getAllTodos(queryString: String) = todoDao.getAllTodos(queryString)
 
     suspend fun delTodo(todo: Todo) = todoDao.delete(todo)
 
     suspend fun updateTodo(todo: Todo) = todoDao.update(todo)
+
+
 }
