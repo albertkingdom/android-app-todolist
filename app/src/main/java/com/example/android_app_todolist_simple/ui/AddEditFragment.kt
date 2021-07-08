@@ -3,6 +3,7 @@ package com.example.android_app_todolist_simple.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
@@ -56,14 +57,24 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
     }
 
     private fun updateItem(id: Int, newTodoTitle: String) {
-        viewModel.updateTodo(Todo(id = id, todoTitle = newTodoTitle, isChecked = false))
-        val action = AddEditFragmentDirections.actionAddEditFragmentToListFragment()
-        findNavController().navigate(action)
+        if (viewModel.isEntryValid(newTodoTitle)){
+            viewModel.updateTodo(Todo(id = id, todoTitle = newTodoTitle, isChecked = false))
+            val action = AddEditFragmentDirections.actionAddEditFragmentToListFragment()
+            findNavController().navigate(action)
+        }else{
+            Toast.makeText(context, "Please do not leave blank",Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     private fun addItem(newTodoTitle: String) {
-        viewModel.insertTodo(Todo(id = 0, todoTitle = newTodoTitle, isChecked = false))
-        val action = AddEditFragmentDirections.actionAddEditFragmentToListFragment()
-        findNavController().navigate(action)
+        if(viewModel.isEntryValid(newTodoTitle)){
+            viewModel.insertTodo(Todo(id = 0, todoTitle = newTodoTitle, isChecked = false))
+            val action = AddEditFragmentDirections.actionAddEditFragmentToListFragment()
+            findNavController().navigate(action)
+        }else{
+            Toast.makeText(context, "Please do not leave blank",Toast.LENGTH_SHORT).show()
+        }
+
     }
 }

@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
+import android.widget.Toast.makeText
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android_app_todolist_simple.R
 import com.example.android_app_todolist_simple.databinding.FragmentListBinding
@@ -18,6 +21,7 @@ import com.example.android_app_todolist_simple.todolist.TodoAdapter
 import com.example.android_app_todolist_simple.todolist.TodoAdapterNew
 import com.example.android_app_todolist_simple.ui.viewmodels.MainViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
@@ -58,7 +62,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
 
 
-
+        // get all todos from db
         lifecycle.coroutineScope.launch {
             viewModel.getAllTodos().collect {
                 todoAdapter.submitList(it)
@@ -74,7 +78,29 @@ class ListFragment : Fragment(R.layout.fragment_list) {
                 )
             )
         }
+        //show menu
         setHasOptionsMenu(true)
+
+        // swipe to delete
+        ItemTouchHelper(object:ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT){
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                 val todo = todoAdapter.currentList[viewHolder.absoluteAdapterPosition]
+                viewModel.delTodo(todo)
+
+                //undo delete operation
+                Snackbar.make(requireView(),"one todo is deleted !", Snackbar.LENGTH_LONG).setAction("Undo"){
+                    viewModel.insertTodo(todo)
+                }.show()
+            }
+        }).attachToRecyclerView(recyclerView)
     }
 
 

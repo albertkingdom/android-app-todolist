@@ -35,5 +35,16 @@ class MainViewModel @Inject constructor(val mainRepository: MainRepository) : Vi
 
     fun getSpecificTodo(id:Int) =  mainRepository.getSpecificTodo(id)
 
-
+    fun delTodo(todo: Todo) = viewModelScope.launch {
+        mainRepository.delTodo(todo)
+    }
+    /**
+    * Returns true if the EditTexts are not empty
+    */
+    fun isEntryValid(todoTitle:String): Boolean {
+        if (todoTitle.isBlank()) {
+            return false
+        }
+        return true
+    }
 }
