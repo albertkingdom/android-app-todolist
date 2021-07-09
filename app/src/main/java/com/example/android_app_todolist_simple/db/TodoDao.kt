@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TodoDao {
-    @Query("SELECT * FROM todos WHERE todoTitle LIKE '%' || :searchQuery || '%'")
-    fun getAllTodos(searchQuery: String): Flow<MutableList<Todo>>
+    @Query("SELECT * FROM todos WHERE todoTitle LIKE '%' || :searchQuery || '%' AND  (isChecked != :hideCompleted OR isChecked = 0)")
+    fun getAllTodos(searchQuery: String, hideCompleted: Boolean): Flow<MutableList<Todo>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(todo: Todo)

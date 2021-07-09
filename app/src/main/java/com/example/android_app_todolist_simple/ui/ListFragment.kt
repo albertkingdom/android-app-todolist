@@ -140,6 +140,9 @@ class ListFragment : Fragment(R.layout.fragment_list) {
                 true
             }
             R.id.action_hide_completed -> {
+                // to change checked to unchecked or vice versa
+                item.isChecked = !item.isChecked
+                viewModel.hideCompleted.value = item.isChecked
                 true
             }
             R.id.action_del_all_completed -> {
