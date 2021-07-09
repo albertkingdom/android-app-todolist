@@ -21,4 +21,7 @@ interface TodoDao {
     @Query("SELECT * FROM todos WHERE id = :id")
     fun getSpecificTodo(id:Int):Flow<Todo>
 
+    @Query("DELETE FROM todos WHERE isChecked = 1")
+    suspend fun delAllCompletedTodo()
+
 }

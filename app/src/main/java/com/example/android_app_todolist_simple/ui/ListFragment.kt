@@ -143,6 +143,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
                 true
             }
             R.id.action_del_all_completed -> {
+                findNavController().navigate(R.id.delCompletedFragment)
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -8,8 +8,8 @@
     <fragment
         android:id="@+id/addEditFragment"
         android:name="com.example.android_app_todolist_simple.ui.AddEditFragment"
-        android:label="fragment_add_edit"
-        tools:layout="@layout/fragment_add_edit" >
+        android:label="Add or Edit"
+        tools:layout="@layout/fragment_add_edit">
         <argument
             android:name="id"
             app:argType="integer" />
@@ -20,10 +20,14 @@
     <fragment
         android:id="@+id/listFragment"
         android:name="com.example.android_app_todolist_simple.ui.ListFragment"
-        android:label="fragment_list"
-        tools:layout="@layout/fragment_list" >
+        android:label="Todos List"
+        tools:layout="@layout/fragment_list">
         <action
             android:id="@+id/action_listFragment_to_addEditFragment"
             app:destination="@id/addEditFragment" />
     </fragment>
+    <dialog
+        android:id="@+id/delCompletedFragment"
+        android:name="com.example.android_app_todolist_simple.ui.DelCompletedFragment"
+        android:label="DelCompletedFragment" />
 </navigation>

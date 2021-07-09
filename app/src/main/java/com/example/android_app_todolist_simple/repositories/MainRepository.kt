@@ -17,4 +17,6 @@ class MainRepository @Inject constructor(
 
     fun getSpecificTodo(id:Int) = todoDao.getSpecificTodo(id)
 
+    suspend fun delAllCompletedTodo() = todoDao.delAllCompletedTodo()
+
 }
