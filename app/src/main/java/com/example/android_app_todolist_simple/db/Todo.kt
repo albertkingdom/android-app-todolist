@@ -1,6 +1,7 @@
 package com.example.android_app_todolist_simple.db
 
 import android.os.Parcelable
+import androidx.annotation.Nullable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -12,5 +13,6 @@ import kotlinx.android.parcel.Parcelize
 data class Todo (
     @PrimaryKey(autoGenerate = true) val id:Int,
     val todoTitle: String,
-    var isChecked: Boolean
+    var isChecked: Boolean,
+    val alarmTime: Int? = null //new column in version2
 ):Parcelable
