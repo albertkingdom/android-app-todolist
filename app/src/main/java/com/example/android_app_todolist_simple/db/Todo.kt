@@ -14,5 +14,5 @@ data class Todo (
     @PrimaryKey(autoGenerate = true) val id:Int,
     val todoTitle: String,
     var isChecked: Boolean,
-    val alarmTime: Int? = null //new column in version2
+    val alarmTime: Long? = null //new column in version2
 ):Parcelable
