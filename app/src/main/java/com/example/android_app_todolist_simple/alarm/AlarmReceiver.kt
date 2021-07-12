@@ -16,18 +16,20 @@ import kotlin.properties.Delegates
 class AlarmReceiver:BroadcastReceiver() {
     private var uniqueId = SystemClock.uptimeMillis()
     override fun onReceive(context: Context, intent: Intent?) {
+        // get To do string to show on notification
+        val intentExtra = intent?.getStringExtra("Remind Todo")
+
         intent?.extras?.let {
             Toast.makeText(context, "wow", Toast.LENGTH_LONG).show()
-
             // to create notification channel with id first
             val builder = NotificationCompat.Builder(context,"bbb")
                 .setSmallIcon(R.drawable.ic_alert)
-                .setContentTitle("Times up")
-                .setContentText("Times up!!")
+                .setContentTitle("Reminding")
+                .setContentText(intentExtra)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
 
             val notificationManager = NotificationManagerCompat.from(context)
-            Log.d("alarm id", uniqueId.toInt().toString())
+
             // need unique id
             notificationManager.notify(uniqueId.toInt(),builder.build())
         }

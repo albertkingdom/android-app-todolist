@@ -32,17 +32,19 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
         super.onViewCreated(view, savedInstanceState)
 //        val binding = FragmentAddEditBinding.bind(view)
         _binding = FragmentAddEditBinding.bind(view)
-        Log.d("args", navigationArgs.toString())
+
         val id = navigationArgs.id
 
         // edit existing to-do case
         if (id != -1) {
             lifecycle.coroutineScope.launch {
 
-                viewModel.getSpecificTodo(id).collect {
+                viewModel.getSpecificTodo(id).collect { it ->
                     binding.editText.setText(it.todoTitle)
                     //show alarm time
-                    binding.alarmText.text = SimpleDateFormat( "h:mm a").format(Date(it.alarmTime!!))
+                    if(it.alarmTime!=null){
+                        binding.alarmText.text = SimpleDateFormat( "h:mm a").format(Date(it.alarmTime!!))
+                    }
                 }
             }
 
@@ -63,8 +65,10 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
 
         //click to pick time and start the alarm
         _binding.picktime.setOnClickListener {
+            val todoContent = _binding.editText.text
             fun showTimePickerDialog(v: View) {
-                TimePickerFragment(::updateAlarmTimeText).show(childFragmentManager, "timePicker")
+
+                TimePickerFragment(::updateAlarmTimeText, todoContent.toString()).show(childFragmentManager, "timePicker")
             }
             showTimePickerDialog(it)
         }
@@ -96,8 +100,5 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
         _binding.alarmText.text = SimpleDateFormat("h:mm a").format(c?.time)
         viewModel.alarmTime = c?.timeInMillis
 
-        Log.d("alarm time",viewModel.alarmTime.toString())
-        Log.d("alarm time 2", c?.timeInMillis.toString())
-        Log.d("alarm convert ms to",SimpleDateFormat( "h:mm a").format(Date(c?.timeInMillis!!)))
     }
 }
