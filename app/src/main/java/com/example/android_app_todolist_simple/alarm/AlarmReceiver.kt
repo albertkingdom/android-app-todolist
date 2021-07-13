@@ -20,7 +20,7 @@ class AlarmReceiver:BroadcastReceiver() {
         val intentExtra = intent?.getStringExtra("Remind Todo")
 
         intent?.extras?.let {
-            Toast.makeText(context, "wow", Toast.LENGTH_LONG).show()
+
             // to create notification channel with id first
             val builder = NotificationCompat.Builder(context,"bbb")
                 .setSmallIcon(R.drawable.ic_alert)

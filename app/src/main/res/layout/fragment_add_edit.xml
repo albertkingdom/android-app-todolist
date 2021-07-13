@@ -9,31 +9,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <EditText
             android:id="@+id/edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Todo name"
+            android:hint="Enter Todo"
             android:inputType="text" />
 
-        <CheckBox
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Important ?" />
+<!--        <CheckBox-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Important ?" />-->
 
         <Button
             android:id="@+id/picktime"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add Alarm"
-            android:drawableLeft="@drawable/ic_add_alarm"/>
+            android:drawableLeft="@drawable/ic_add_alarm"
+            android:drawableTint="@color/white"
+            />
+
         <TextView
             android:id="@+id/alarmText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No Alarm Set"/>
+            android:gravity="center_horizontal"
+            android:text="No Alarm Set"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
