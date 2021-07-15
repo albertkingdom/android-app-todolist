@@ -40,7 +40,7 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
     private val recorder = MediaRecorder()
     private val player = MediaPlayer()
     private lateinit var folder: File
-    private var fileName = ""
+    private var fileName:String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
