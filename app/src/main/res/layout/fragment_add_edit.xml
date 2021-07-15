@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.AddEditFragment">
 
     <LinearLayout
@@ -19,19 +19,18 @@
             android:hint="Enter Todo"
             android:inputType="text" />
 
-<!--        <CheckBox-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Important ?" />-->
+        <!--        <CheckBox-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="Important ?" />-->
 
         <Button
             android:id="@+id/picktime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Alarm"
             android:drawableLeft="@drawable/ic_add_alarm"
             android:drawableTint="@color/white"
-            />
+            android:text="Add Alarm" />
 
         <TextView
             android:id="@+id/alarmText"
@@ -40,15 +39,70 @@
             android:gravity="center_horizontal"
             android:text="No Alarm Set"
             android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="30dp">
+
+            <TextView
+                android:id="@+id/text_record"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="請開始錄音" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/btn_record"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:backgroundTint="@android:color/darker_gray"
+                    android:elevation="0dp"
+                    android:src="@drawable/ic_recording"
+                    app:borderWidth="0dp"
+                    app:tint="@android:color/holo_red_dark" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/btn_playRecord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:backgroundTint="@android:color/darker_gray"
+                    android:elevation="0dp"
+                    android:src="@drawable/ic_play_arrow"
+                    app:borderWidth="0dp"
+                    app:tint="@android:color/holo_green_dark" />
+
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_del_record"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@android:color/transparent"
+                android:text="刪除錄音"
+                android:textColor="@color/black" />
+
+
+        </LinearLayout>
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/save_todo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:id="@+id/save_todo"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_check"
-         />
+        android:src="@drawable/ic_check" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
