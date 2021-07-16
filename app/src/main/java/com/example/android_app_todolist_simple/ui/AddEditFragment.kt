@@ -1,13 +1,16 @@
 package com.example.android_app_todolist_simple.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -32,7 +35,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
+class AddEditFragment : Fragment() {
     val viewModel: MainViewModel by viewModels()
     val navigationArgs: AddEditFragmentArgs by navArgs()
     lateinit var _binding: FragmentAddEditBinding
@@ -42,13 +45,22 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
     private lateinit var folder: File
     private var fileName:String? = null
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentAddEditBinding.inflate(inflater, container, false)
+
+        checkAndGetRecordingPermission()
+        return _binding.root
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        val binding = FragmentAddEditBinding.bind(view)
-        _binding = FragmentAddEditBinding.bind(view)
+
 
         val id = navigationArgs.id
-
+        _binding.btnDelRecord.visibility = View.INVISIBLE
         // edit existing to-do case
         if (id != -1) {
             lifecycle.coroutineScope.launch {
@@ -63,6 +75,8 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
                     if (it.audioRecord != null) {
                         fileName = it.audioRecord.toString()
                         binding.textRecord.text="you have a audio recording"
+                        // show delete audio recording button
+                        _binding.btnDelRecord.visibility = View.VISIBLE
                     }
 
                 }
@@ -80,6 +94,7 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
                 val newTodoTitle = _binding.editText.text.toString()
                 addItem(newTodoTitle)
             }
+
         }
 
 
@@ -93,7 +108,6 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
             showTimePickerDialog(it)
         }
 
-        checkAndGetRecordingPermission()
 
     }
 
@@ -168,6 +182,7 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
         btn_del_record.setOnClickListener {
             delRecording()
             textView.text = "請開始錄音"
+            btn_del_record.visibility = View.INVISIBLE
         }
         btn_float_record.setOnClickListener {
             isRecording = when(isRecording){
@@ -192,7 +207,7 @@ class AddEditFragment : Fragment(R.layout.fragment_add_edit) {
                         recorder.stop() //結束錄音
                         textView.text = "已儲存至${file.absolutePath}"
                         btn_float_play.isEnabled = true
-
+                        btn_del_record.visibility = View.VISIBLE
 
                     } catch (e: Exception) {
                         e.printStackTrace()
