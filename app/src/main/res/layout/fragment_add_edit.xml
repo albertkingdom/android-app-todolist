@@ -64,7 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:backgroundTint="@android:color/darker_gray"
+                    android:backgroundTint="@android:color/white"
                     android:elevation="0dp"
                     android:src="@drawable/ic_recording"
                     app:borderWidth="0dp"
@@ -75,11 +75,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:backgroundTint="@android:color/darker_gray"
+                    android:backgroundTint="@android:color/white"
                     android:elevation="0dp"
                     android:src="@drawable/ic_play_arrow"
+                    android:tint="@color/black"
                     app:borderWidth="0dp"
-                    app:tint="@android:color/holo_green_dark" />
+
+                    />
 
 
             </LinearLayout>
@@ -90,6 +92,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:background="@android:color/transparent"
+                android:drawableLeft="@drawable/ic_delete"
+                android:drawableTint="@color/black"
                 android:text="刪除錄音"
                 android:textColor="@color/black" />
 
