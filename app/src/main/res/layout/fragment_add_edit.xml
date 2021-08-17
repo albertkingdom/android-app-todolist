@@ -12,12 +12,34 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <EditText
-            android:id="@+id/edit_text"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edit_title"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter Todo"
-            android:inputType="text" />
+            android:hint="@string/title_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edit_detail"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="@string/detail_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="7"
+                android:maxLines="7" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!--        <CheckBox-->
         <!--            android:layout_width="match_parent"-->
@@ -28,16 +50,23 @@
             android:id="@+id/picktime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_add_alarm"
             android:drawableTint="@color/white"
-            android:text="Add Alarm" />
-
+            android:text="@string/add_alarm_label"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+        <Button
+            android:id="@+id/cancelAlarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTint="@color/white"
+            android:text="@string/cancel_alarm_label"
+            android:enabled="false"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
         <TextView
             android:id="@+id/alarmText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="No Alarm Set"
+            android:text="@string/no_alarm_set_hint"
             android:textSize="16sp" />
 
         <LinearLayout
@@ -51,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text="請開始錄音" />
+                android:text="@string/recording_hint" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -66,38 +95,83 @@
                     android:layout_margin="5dp"
                     android:backgroundTint="@android:color/white"
                     android:elevation="0dp"
-                    android:src="@drawable/ic_recording"
+                    android:enabled="true"
                     app:borderWidth="0dp"
+                    app:srcCompat="@drawable/ic_mic"
                     app:tint="@android:color/holo_red_dark" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/btn_playRecord"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:backgroundTint="@android:color/white"
-                    android:elevation="0dp"
-                    android:src="@drawable/ic_play_arrow"
-                    android:tint="@color/black"
-                    app:borderWidth="0dp"
-
-                    />
 
 
             </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_del_record"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:background="@android:color/transparent"
-                android:drawableLeft="@drawable/ic_delete"
-                android:drawableTint="@color/black"
-                android:text="刪除錄音"
-                android:textColor="@color/black" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/recordFileCardView"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:visibility="invisible"
+                app:cardElevation="5dp"
+                app:strokeColor="@color/gray"
+                app:strokeWidth="1dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="錄音時間："
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/recording_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text=""
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:context="2020/01/01" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_playRecord"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_gravity=""
+                        android:layout_marginEnd="10dp"
+                        android:background="@android:color/transparent"
+                        android:text=""
+                        app:icon="@drawable/ic_play_arrow"
+                        app:iconSize="20dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btn_del_record"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_del_record"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_gravity=""
+                        android:background="@android:color/transparent"
+                        android:text=""
+                        app:icon="@drawable/ic_delete"
+                        app:iconSize="20dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
 
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </LinearLayout>
 

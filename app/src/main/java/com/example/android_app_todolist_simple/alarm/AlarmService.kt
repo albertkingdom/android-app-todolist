@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 
 import java.util.*
 
@@ -17,26 +18,31 @@ class AlarmService(private val context: Context) {
 
 
 
-    fun setAlarm(c:Calendar, todoContent:String) {
+    fun setAlarm(c:Calendar, todoBundle: Bundle) {
         alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
-            //to make each intent unique, so each intent will push to broadcast
-            intent.setAction(System.currentTimeMillis().toString())
-            intent.putExtra("Remind Todo",todoContent)
-            PendingIntent.getBroadcast(context, 0, intent, 0)
-        }
-        alarmMgr?.setExact(
-            AlarmManager.RTC_WAKEUP,
-            c.timeInMillis,
-            alarmIntent)
 
+            intent.putExtra("REMIND_TODO", todoBundle)
+            // 2nd variable(request code) is to make each intent unique
+            PendingIntent.getBroadcast(context, todoBundle.getInt("TODO_ID"), intent, 0)
+        }
+        // To set alarm Only if the alarm time is after current time
+        if(c.after(Calendar.getInstance())) {
+            alarmMgr?.setExact(
+                AlarmManager.RTC_WAKEUP,
+                c.timeInMillis,
+                alarmIntent
+            )
+        }
 
 
     }
+    fun cancelAlarm(todoBundle: Bundle){
+        alarmIntent = Intent(context, AlarmReceiver::class.java).let { intent ->
 
+            intent.putExtra("REMIND_TODO", todoBundle)
+            PendingIntent.getBroadcast(context, todoBundle.getInt("TODO_ID"), intent, 0)
+        }
+        alarmMgr?.cancel(alarmIntent)
 
-
-
+    }
 }
-/**   TODO: cancel alarm
- *
- */

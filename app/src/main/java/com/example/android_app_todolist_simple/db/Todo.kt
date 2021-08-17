@@ -13,6 +13,7 @@ import kotlinx.android.parcel.Parcelize
 data class Todo (
     @PrimaryKey(autoGenerate = true) val id:Int,
     val todoTitle: String,
+    val todoDetail: String? = null,
     var isChecked: Boolean,
     val alarmTime: Long? = null, //new column in version2
     val audioRecord: String? = null

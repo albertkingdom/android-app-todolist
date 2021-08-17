@@ -38,10 +38,10 @@ class MainActivity : AppCompatActivity() {
     // create notification channel
     private fun createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Akai999"
-            val descriptionText = "channel for akai"
+            val name = "Reminding Todo Alarm"
+            val descriptionText = "test"
             val importance = NotificationManager.IMPORTANCE_HIGH
-            val mChannel = NotificationChannel("bbb", name, importance)
+            val mChannel = NotificationChannel("test", name, importance)
             mChannel.description = descriptionText
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this

@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Android-app-todolist-simple</string>
+    <string name="title_hint">Title</string>
+    <string name="detail_hint">Detail</string>
+    <string name="add_alarm_label">Add Alarm</string>
+    <string name="cancel_alarm_label">Cancel Alarm</string>
+    <string name="no_alarm_set_hint">No Alarm Set</string>
+    <string name="recording_hint">請開始錄音</string>
+    <string name="alarm_time_hint">預約提醒時間：%s</string>
 </resources>

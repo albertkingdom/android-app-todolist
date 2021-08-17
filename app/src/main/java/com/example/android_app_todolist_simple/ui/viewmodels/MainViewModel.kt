@@ -19,7 +19,12 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(val mainRepository: MainRepository) : ViewModel() {
     val searchQuery = MutableStateFlow("")
     val hideCompleted = MutableStateFlow(false)
-    var alarmTime:Long? = null
+    private var _alarmTime:Long? = null
+    var alarmTime: Long?
+        get() = _alarmTime
+        set(value) { _alarmTime = value }
+
+
     // ViewModelScope is an extension property to the ViewModel class that automatically cancels its child coroutines when the ViewModel is destroyed.
     fun insertTodo(todo: Todo) = viewModelScope.launch {
         mainRepository.insertTodo(todo)

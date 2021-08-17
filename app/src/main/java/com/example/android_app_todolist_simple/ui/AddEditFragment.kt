@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,12 +18,14 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.android_app_todolist_simple.R
+import com.example.android_app_todolist_simple.alarm.AlarmService
 import com.example.android_app_todolist_simple.databinding.FragmentAddEditBinding
 import com.example.android_app_todolist_simple.db.Todo
 import com.example.android_app_todolist_simple.ui.viewmodels.MainViewModel
@@ -44,12 +47,13 @@ class AddEditFragment : Fragment() {
     private val player = MediaPlayer()
     private lateinit var folder: File
     private var fileName:String? = null
+    private var todoBundle: Bundle = Bundle()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAddEditBinding.inflate(inflater, container, false)
 
         checkAndGetRecordingPermission()
@@ -60,39 +64,51 @@ class AddEditFragment : Fragment() {
 
 
         val id = navigationArgs.id
-        _binding.btnDelRecord.visibility = View.INVISIBLE
+
         // edit existing to-do case
         if (id != -1) {
             lifecycle.coroutineScope.launch {
 
                 viewModel.getSpecificTodo(id).collect { it ->
-                    binding.editText.setText(it.todoTitle)
-                    //show alarm time
-                    if(it.alarmTime!=null){
-                        binding.alarmText.text = SimpleDateFormat( "h:mm a").format(Date(it.alarmTime!!))
+
+                    binding.apply {
+                        editTitle.editText?.setText(it.todoTitle)
+                        editDetail.editText?.setText(it.todoDetail)
                     }
-                    //
+                    //show alarm time
+                    if(it.alarmTime != null){
+                        // check the alarm time is after current time
+                        if(Date(it.alarmTime).after(Date())) {
+
+                            binding.alarmText.text = resources.getString(R.string.alarm_time_hint,
+                                SimpleDateFormat("h:mm a").format(Date(it.alarmTime)))
+                            binding.cancelAlarm.isEnabled = true
+                        }
+                    }
+                    // already had recording file
                     if (it.audioRecord != null) {
                         fileName = it.audioRecord.toString()
-                        binding.textRecord.text="you have a audio recording"
-                        // show delete audio recording button
-                        _binding.btnDelRecord.visibility = View.VISIBLE
+
+                        binding.recordFileCardView.visibility = View.VISIBLE
+                        binding.recordingTime.text = SimpleDateFormat("MM/dd h:mm a").format(Date(it.audioRecord.toLong()))
                     }
 
                 }
             }
 
             _binding.saveTodo.setOnClickListener {
-                val newTodoTitle = _binding.editText.text.toString()
-                updateItem(id, newTodoTitle)
+
+                updateItem(id)
+                goBackToList()
             }
         }
         // add new to-do case
         if (id == -1) {
             viewModel.alarmTime = null
             _binding.saveTodo.setOnClickListener {
-                val newTodoTitle = _binding.editText.text.toString()
-                addItem(newTodoTitle)
+
+                addItem()
+                goBackToList()
             }
 
         }
@@ -100,42 +116,80 @@ class AddEditFragment : Fragment() {
 
         //click to pick time and start the alarm
         _binding.picktime.setOnClickListener {
-            val todoContent = _binding.editText.text
+            val todoContent = _binding.editTitle.editText?.text
+
+            todoBundle.putString("TODO_CONTENT", todoContent.toString())
+            todoBundle.putInt("TODO_ID", id)
             fun showTimePickerDialog(v: View) {
 
-                TimePickerFragment(::updateAlarmTimeText, todoContent.toString()).show(childFragmentManager, "timePicker")
+                TimePickerFragment(::updateAlarmTimeText, todoBundle).show(childFragmentManager, "timePicker")
             }
             showTimePickerDialog(it)
         }
 
+        // cancel the alarm
+        _binding.cancelAlarm.setOnClickListener {
+
+            viewModel.alarmTime = null
+            updateItem(id)
+            binding.alarmText.text = "No Alarm Set"
+            AlarmService(requireContext()).cancelAlarm(todoBundle)
+            Snackbar.make(view, "Canceled Alarm Notification", Snackbar.LENGTH_LONG).show()
+        }
+
+
 
     }
 
-    private fun updateItem(id: Int, newTodoTitle: String) {
+    private fun updateItem(id: Int) {
+        val newTodoTitle = _binding.editTitle.editText?.text.toString()
+        val newTodoDetail = _binding.editDetail.editText?.text.toString()
         if (viewModel.isEntryValid(newTodoTitle)){
-            viewModel.updateTodo(Todo(id = id, todoTitle = newTodoTitle, isChecked = false, alarmTime = viewModel.alarmTime, audioRecord = fileName))
-            val action = AddEditFragmentDirections.actionAddEditFragmentToListFragment()
-            findNavController().navigate(action)
+            viewModel.updateTodo(
+                Todo(
+                    id = id,
+                    todoTitle = newTodoTitle,
+                    todoDetail = newTodoDetail,
+                    isChecked = false,
+                    alarmTime = viewModel.alarmTime,
+                    audioRecord = fileName
+                )
+            )
+
         }else{
             Toast.makeText(context, "Please do not leave blank",Toast.LENGTH_SHORT).show()
         }
 
     }
+    private fun goBackToList(){
+        val action = AddEditFragmentDirections.actionAddEditFragmentToListFragment()
+        findNavController().navigate(action)
+    }
 
-    private fun addItem(newTodoTitle: String) {
+    private fun addItem() {
+        val newTodoTitle = _binding.editTitle.editText?.text.toString()
+        val newTodoDetail = _binding.editDetail.editText?.text.toString()
         if(viewModel.isEntryValid(newTodoTitle)){
-            viewModel.insertTodo(Todo(id = 0, todoTitle = newTodoTitle, isChecked = false,alarmTime = viewModel.alarmTime, audioRecord = fileName ))
-            val action = AddEditFragmentDirections.actionAddEditFragmentToListFragment()
-            findNavController().navigate(action)
+            viewModel.insertTodo(
+                Todo(
+                    id = 0,
+                    todoTitle = newTodoTitle,
+                    todoDetail = newTodoDetail,
+                    isChecked = false,
+                    alarmTime = viewModel.alarmTime,
+                    audioRecord = fileName
+                )
+            )
+
         }else{
             Toast.makeText(context, "Please do not leave blank",Toast.LENGTH_SHORT).show()
         }
 
     }
-    private fun updateAlarmTimeText(c: Calendar?){
-        _binding.alarmText.text = SimpleDateFormat("h:mm a").format(c?.time)
-        viewModel.alarmTime = c?.timeInMillis
-
+    private fun updateAlarmTimeText(c: Calendar){
+        _binding.alarmText.text = resources.getString(R.string.alarm_time_hint, SimpleDateFormat("h:mm a").format(c?.time))
+        viewModel.alarmTime = c.timeInMillis
+        _binding.cancelAlarm.isEnabled = true
     }
 
     private fun checkAndGetRecordingPermission(){
@@ -169,25 +223,25 @@ class AddEditFragment : Fragment() {
         }
     }
     private fun setRecordingListener() { //設定監聽器
-        //將變數與 XML 元件綁定
+
         var isRecording:Boolean = false
         var isPlaying:Boolean = false
 
         val textView = _binding.textRecord
-        val btn_del_record = _binding.btnDelRecord
-        val btn_float_record = _binding.btnRecord
-        val btn_float_play = _binding.btnPlayRecord
+        val btnDelRecording = _binding.btnDelRecord
+        val btnStartRecording = _binding.btnRecord
+        val btnPlayRecording = _binding.btnPlayRecord
 
 
-        btn_del_record.setOnClickListener {
+        btnDelRecording.setOnClickListener {
             delRecording()
             textView.text = "請開始錄音"
-            btn_del_record.visibility = View.INVISIBLE
+
         }
-        btn_float_record.setOnClickListener {
+        btnStartRecording.setOnClickListener {
             isRecording = when(isRecording){
                 false -> {
-                    btn_float_record.setImageDrawable(resources.getDrawable(R.drawable.ic_stop,requireContext().theme))
+                    btnStartRecording.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_stop, null))
                     fileName = "${Calendar.getInstance().time.time}" //定義檔案名稱為目前時間
                     recorder.setAudioSource(MediaRecorder.AudioSource.MIC) //聲音來源為麥克風
                     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4) //設定輸出格式
@@ -196,24 +250,28 @@ class AddEditFragment : Fragment() {
                     recorder.prepare() //準備錄音
                     recorder.start() //開始錄音
                     textView.text = "錄音中..."
-                    btn_float_play.isEnabled = false
+                    btnPlayRecording.isEnabled = false
 
                     true
                 }
                 else -> {
-                    btn_float_record.setImageDrawable(resources.getDrawable(R.drawable.ic_recording,requireContext().theme))
-                    try { //若使用模擬器停止錄音容易產生例外，所以使用 try-catch 處理
-                        val file = File(folder, fileName) //定義錄音檔案
+                    btnStartRecording.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_mic, null))
+                    try {
+                        //val file = File(folder, fileName) //定義錄音檔案
                         recorder.stop() //結束錄音
-                        textView.text = "已儲存至${file.absolutePath}"
-                        btn_float_play.isEnabled = true
-                        btn_del_record.visibility = View.VISIBLE
+                        textView.text = "請開始錄音"
+                        btnPlayRecording.isEnabled = true
+
+                        binding.recordFileCardView.visibility = View.VISIBLE
+                        binding.recordingTime.text = SimpleDateFormat("MM/dd h:mm a").format(Date())
+                        Snackbar.make(requireView(), "錄音完成", Snackbar.LENGTH_LONG).show()
+
 
                     } catch (e: Exception) {
                         e.printStackTrace()
                         recorder.reset() //重置錄音器
                         textView.text = "錄音失敗"
-                        btn_float_play.isEnabled = true
+                        btnPlayRecording.isEnabled = true
 
                     }
                     false
@@ -221,26 +279,26 @@ class AddEditFragment : Fragment() {
             }
 
         }
-        btn_float_play.setOnClickListener {
+        btnPlayRecording.setOnClickListener {
             isPlaying = when(isPlaying){
                 false -> {
-                    btn_float_play.setImageDrawable(resources.getDrawable(R.drawable.ic_pause,requireContext().theme))
-                    val file = File(folder, fileName) //定義播放檔案
+                    btnPlayRecording.icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_pause, null)
+                    val file = File(folder, fileName!!) //定義播放檔案
                     player.setDataSource(requireContext(),Uri.fromFile(file)) //設定音訊來源
                     player.setVolume(1f, 1f) //設定左右聲道音量
                     player.prepare() //準備播放
                     player.start() //開始播放
-                    textView.text = "播放中..."
-                    btn_float_record.isEnabled = false
+                    Snackbar.make(requireView(), "播放錄音中...", Snackbar.LENGTH_LONG).show()
+                    btnStartRecording.isEnabled = false
 
                     true
                 }
                 else -> {
-                    btn_float_play.setImageDrawable(resources.getDrawable(R.drawable.ic_play_arrow,requireContext().theme))
+                    btnPlayRecording.icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_play_arrow, null)
                     player.stop() //停止播放
                     player.reset() //重置播放器
-                    textView.text = "播放結束"
-                    btn_float_record.isEnabled = true
+                    Snackbar.make(requireView(), "播放結束", Snackbar.LENGTH_LONG).show()
+                    btnStartRecording.isEnabled = true
 
                     false
                 }
@@ -248,16 +306,17 @@ class AddEditFragment : Fragment() {
         }
         player.setOnCompletionListener { //設定播放器播放完畢的監聽器
             it.reset() //重置播放器
-            textView.text = "播放結束"
-            btn_float_play.setImageDrawable(resources.getDrawable(R.drawable.ic_play_arrow,requireContext().theme))
-            btn_float_record.isEnabled = true
+            //textView.text = "播放結束"
+            Snackbar.make(requireView(), "播放結束", Snackbar.LENGTH_LONG).show()
+            btnPlayRecording.icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_play_arrow, null)
+            btnStartRecording.isEnabled = true
 
         }
     }
 
     private fun delRecording() {
         val id = navigationArgs.id
-        val newTodoTitle = _binding.editText.text.toString()
+        val newTodoTitle = _binding.editTitle.editText?.text.toString()
         viewModel.updateTodo(
             Todo(id = id,
                 todoTitle = newTodoTitle,
@@ -265,5 +324,8 @@ class AddEditFragment : Fragment() {
                 alarmTime = viewModel.alarmTime,
                 audioRecord = null)
         )
+        fileName = null
+        binding.recordFileCardView.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "錄音已刪除", Snackbar.LENGTH_LONG).show()
     }
 }

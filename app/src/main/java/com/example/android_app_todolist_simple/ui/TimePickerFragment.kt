@@ -9,11 +9,13 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.TimePicker
+import androidx.core.app.BundleCompat
 import androidx.fragment.app.DialogFragment
 import com.example.android_app_todolist_simple.alarm.AlarmService
+import com.example.android_app_todolist_simple.db.Todo
 import java.util.*
 
-class TimePickerFragment(val callback:(Calendar)->Unit, val todoContent:String) : DialogFragment(), TimePickerDialog.OnTimeSetListener {
+class TimePickerFragment(val callback:(Calendar)->Unit, val todoBundle: Bundle) : DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         // Use the current time as the default values for the picker
@@ -32,7 +34,7 @@ class TimePickerFragment(val callback:(Calendar)->Unit, val todoContent:String) 
         c.set(Calendar.MINUTE, minute)
 
         //start the alarm
-        AlarmService(requireContext()).setAlarm(c, todoContent)
+        AlarmService(requireContext()).setAlarm(c, todoBundle)
 
         /**
          * show the alarm time on screen
