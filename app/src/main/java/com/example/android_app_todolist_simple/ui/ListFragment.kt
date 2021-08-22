@@ -1,7 +1,5 @@
 package com.example.android_app_todolist_simple.ui
 
-import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -62,10 +60,18 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
         // get all todos from db
         lifecycle.coroutineScope.launch {
-            viewModel.getAllTodos().collect {
-                todoAdapter.submitList(it)
-                allTodoList = it
+            // get the start time in ms of today
+            val date = Calendar.getInstance().get(Calendar.DATE)
+            val month = Calendar.getInstance().get(Calendar.MONTH)
+            val year = Calendar.getInstance().get(Calendar.YEAR)
+            val today = Calendar.getInstance()
+            today.set(year, month, date, 0, 0, 0)
 
+
+
+            viewModel.getAllTodos().collect {
+                allTodoList = it
+                toGetSpecificDateTodos(today, it)
                 /** Add icon to calendar if the specific date have todos
                  *
                   */
@@ -73,6 +79,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
                     for (todo in it) {
                         val calendar = Calendar.getInstance()
+                        // set time to createdTime of todo
                         if (todo.createdTime != null) calendar.timeInMillis = todo.createdTime
 
                         events.add(EventDay(calendar, R.drawable.ic_baseline_star))
@@ -129,19 +136,9 @@ class ListFragment : Fragment(R.layout.fragment_list) {
                 lifecycle.coroutineScope.launch {
                     try {
                         viewModel.getAllTodos().collect {
-                            withContext(Dispatchers.Default){
-                                withInRangeTodoList = it.filter { todo ->
-                                    (todo.createdTime != null) && (todo.createdTime > clickedDay.timeInMillis) &&
-                                            (todo.createdTime < clickedDay.timeInMillis + 86400000)
-
-                                }
-                            }
-                            if (binding.switchButton.isChecked) {
-                                todoAdapter.submitList(withInRangeTodoList)
-                            }else{
-                                todoAdapter.submitList(it)
-                            }
+                            toGetSpecificDateTodos(clickedDay, it)
                         }
+
                     } catch (e: Throwable) {
                         Log.e("calendar error", e.toString())
                     }
@@ -226,6 +223,23 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     private fun editTodo(todo: Todo) {
         val action = ListFragmentDirections.actionListFragmentToAddEditFragment(todo.id)
         findNavController().navigate(action)
+    }
+
+    private suspend fun toGetSpecificDateTodos(day: Calendar, todoSource: MutableList<Todo>) {
+
+            withContext(Dispatchers.Default) {
+                withInRangeTodoList = todoSource.filter { todo ->
+                    (todo.createdTime != null) && (todo.createdTime > day.timeInMillis) &&
+                            (todo.createdTime < day.timeInMillis + 86400000)
+
+                }
+            }
+            if (binding.switchButton.isChecked) {
+                todoAdapter.submitList(withInRangeTodoList)
+            } else {
+                todoAdapter.submitList(todoSource)
+            }
+
     }
 
 

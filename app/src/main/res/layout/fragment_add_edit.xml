@@ -179,6 +179,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_check"
         android:backgroundTint="@color/purple_500"
-        app:tint="@color/white"/>
+        app:tint="@color/white"
+        app:borderWidth="0dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

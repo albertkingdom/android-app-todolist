@@ -321,9 +321,11 @@ class AddEditFragment : Fragment() {
     private fun delRecording() {
         val id = navigationArgs.id
         val newTodoTitle = _binding.editTitle.editText?.text.toString()
+        val newTodoDetail = _binding.editDetail.editText?.text.toString()
         viewModel.updateTodo(
             Todo(id = id,
                 todoTitle = newTodoTitle,
+                todoDetail = newTodoDetail,
                 isChecked = false,
                 alarmTime = viewModel.alarmTime,
                 audioRecord = null,
