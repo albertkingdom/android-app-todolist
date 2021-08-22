@@ -1,31 +1,35 @@
 package com.example.android_app_todolist_simple.ui
 
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.*
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
-import android.widget.Toast.makeText
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.applandeo.materialcalendarview.CalendarDay
+import com.applandeo.materialcalendarview.EventDay
+import com.applandeo.materialcalendarview.listeners.OnDayClickListener
 import com.example.android_app_todolist_simple.R
 import com.example.android_app_todolist_simple.databinding.FragmentListBinding
 import com.example.android_app_todolist_simple.db.Todo
-
-import com.example.android_app_todolist_simple.todolist.TodoAdapter
 import com.example.android_app_todolist_simple.todolist.TodoAdapterNew
 import com.example.android_app_todolist_simple.ui.viewmodels.MainViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
+
 
 @AndroidEntryPoint
 class ListFragment : Fragment(R.layout.fragment_list) {
@@ -33,16 +37,10 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     lateinit var todoAdapter: TodoAdapterNew
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
+    val events: MutableList<EventDay> = ArrayList() //events list for calendar
+    var withInRangeTodoList = listOf<Todo>() // filtered todos list for calendar
+    var allTodoList = listOf<Todo>()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -66,7 +64,25 @@ class ListFragment : Fragment(R.layout.fragment_list) {
         lifecycle.coroutineScope.launch {
             viewModel.getAllTodos().collect {
                 todoAdapter.submitList(it)
+                allTodoList = it
+
+                /** Add icon to calendar if the specific date have todos
+                 *
+                  */
+                withContext(Dispatchers.Default) {
+
+                    for (todo in it) {
+                        val calendar = Calendar.getInstance()
+                        if (todo.createdTime != null) calendar.timeInMillis = todo.createdTime
+
+                        events.add(EventDay(calendar, R.drawable.ic_baseline_star))
+
+                    }
+                }
+
+                binding.calendarView.setEvents(events)
             }
+
         }
 
 
@@ -101,6 +117,49 @@ class ListFragment : Fragment(R.layout.fragment_list) {
                 }.show()
             }
         }).attachToRecyclerView(recyclerView)
+
+        /**
+         * click calendar date to display todos created on that date
+         */
+        binding.calendarView.setOnDayClickListener(object : OnDayClickListener {
+            override fun onDayClick(eventDay: EventDay) {
+
+                val clickedDay = eventDay.calendar
+
+                lifecycle.coroutineScope.launch {
+                    try {
+                        viewModel.getAllTodos().collect {
+                            withContext(Dispatchers.Default){
+                                withInRangeTodoList = it.filter { todo ->
+                                    (todo.createdTime != null) && (todo.createdTime > clickedDay.timeInMillis) &&
+                                            (todo.createdTime < clickedDay.timeInMillis + 86400000)
+
+                                }
+                            }
+                            if (binding.switchButton.isChecked) {
+                                todoAdapter.submitList(withInRangeTodoList)
+                            }else{
+                                todoAdapter.submitList(it)
+                            }
+                        }
+                    } catch (e: Throwable) {
+                        Log.e("calendar error", e.toString())
+                    }
+
+                }
+            }
+
+        })
+
+        binding.switchButton.setOnCheckedChangeListener { button, isChecked ->
+
+            if(isChecked){
+                todoAdapter.submitList(withInRangeTodoList)
+            }else{
+                todoAdapter.submitList(allTodoList)
+            }
+        }
+
     }
 
 
@@ -113,9 +172,6 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
         val searchView = searchItem.actionView as SearchView
 
-//        searchView.onQueryTextChanged {
-//            viewModel.searchQuery.value = it
-//        }
 
         //get search query input and do something
         //https://stackoverflow.com/questions/55949305/how-to-properly-retrieve-data-from-searchview-in-kotlin
@@ -136,7 +192,17 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     // click menu options
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_sort_by_name -> {
+            R.id.switchView -> {
+                if(item.title == "calendarView"){
+                    item.title = "listView"
+                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_list, null)
+                    binding.calendarView.visibility = View.GONE
+                }else{
+                    item.title = "calendarView"
+                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_calendar, null)
+                    binding.calendarView.visibility = View.VISIBLE
+                }
+
                 true
             }
             R.id.action_hide_completed -> {

@@ -80,7 +80,7 @@ dependencies {
     kapt "androidx.hilt:hilt-compiler:1.0.0"
     api 'com.google.dagger:dagger-android-support:2.23.2'
     kapt 'com.google.dagger:dagger-android-processor:2.23.2'
-// For instrumentation tests
+    // For instrumentation tests
     androidTestImplementation 'com.google.dagger:hilt-android-testing:2.37'
     kaptAndroidTest 'com.google.dagger:hilt-compiler:2.37'
 
@@ -91,7 +91,8 @@ dependencies {
     //fragment
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
 
-    debugImplementation 'com.amitshekhar.android:debug-db:1.0.4'
+    // 3rd party calendar view
+    implementation 'com.applandeo:material-calendar-view:1.9.0-rc03'
 
 
 

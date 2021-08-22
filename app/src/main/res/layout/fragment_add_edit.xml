@@ -41,10 +41,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!--        <CheckBox-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="Important ?" />-->
 
         <Button
             android:id="@+id/picktime"
@@ -181,6 +177,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_check" />
+        android:src="@drawable/ic_check"
+        android:backgroundTint="@color/purple_500"
+        app:tint="@color/white"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

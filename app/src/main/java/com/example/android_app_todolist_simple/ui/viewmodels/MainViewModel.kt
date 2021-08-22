@@ -5,13 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.android_app_todolist_simple.db.Todo
 import com.example.android_app_todolist_simple.repositories.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 
 //ViewModelInject is deprecated
@@ -37,7 +40,9 @@ class MainViewModel @Inject constructor(val mainRepository: MainRepository) : Vi
             hideCompleted
         )
     }.flatMapLatest { (searchQuery, hideCompleted) ->
-        mainRepository.getAllTodos(searchQuery, hideCompleted)
+        withContext(Dispatchers.IO) {
+            mainRepository.getAllTodos(searchQuery, hideCompleted)
+        }
     }
 
     fun updateTodo(todo: Todo) = viewModelScope.launch {

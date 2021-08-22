@@ -48,7 +48,7 @@ class AddEditFragment : Fragment() {
     private lateinit var folder: File
     private var fileName:String? = null
     private var todoBundle: Bundle = Bundle()
-
+    private var createdTime: Long? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -92,6 +92,8 @@ class AddEditFragment : Fragment() {
                         binding.recordFileCardView.visibility = View.VISIBLE
                         binding.recordingTime.text = SimpleDateFormat("MM/dd h:mm a").format(Date(it.audioRecord.toLong()))
                     }
+
+                    createdTime = it.createdTime
 
                 }
             }
@@ -152,7 +154,8 @@ class AddEditFragment : Fragment() {
                     todoDetail = newTodoDetail,
                     isChecked = false,
                     alarmTime = viewModel.alarmTime,
-                    audioRecord = fileName
+                    audioRecord = fileName,
+                    createdTime = createdTime
                 )
             )
 
@@ -177,7 +180,8 @@ class AddEditFragment : Fragment() {
                     todoDetail = newTodoDetail,
                     isChecked = false,
                     alarmTime = viewModel.alarmTime,
-                    audioRecord = fileName
+                    audioRecord = fileName,
+                    createdTime = Calendar.getInstance().timeInMillis
                 )
             )
 
@@ -322,7 +326,9 @@ class AddEditFragment : Fragment() {
                 todoTitle = newTodoTitle,
                 isChecked = false,
                 alarmTime = viewModel.alarmTime,
-                audioRecord = null)
+                audioRecord = null,
+                createdTime = createdTime
+            )
         )
         fileName = null
         binding.recordFileCardView.visibility = View.INVISIBLE

@@ -5,7 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="50dp"
     android:paddingStart="8dp"
-    android:paddingEnd="8dp">
+    android:paddingEnd="8dp"
+    android:background="@drawable/border"
+    android:layout_margin="3dp"
+    android:backgroundTint="@color/purple_50"
+    >
 
     <CheckBox
         android:id="@+id/todoCheck"
@@ -19,7 +23,7 @@
         android:id="@+id/todoTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="title"
+        tools:text="title"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/todoCheck"

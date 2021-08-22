@@ -16,5 +16,6 @@ data class Todo (
     val todoDetail: String? = null,
     var isChecked: Boolean,
     val alarmTime: Long? = null, //new column in version2
-    val audioRecord: String? = null
+    val audioRecord: String? = null,
+    val createdTime: Long? = null
 ):Parcelable

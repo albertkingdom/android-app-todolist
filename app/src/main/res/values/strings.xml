@@ -7,4 +7,5 @@
     <string name="no_alarm_set_hint">No Alarm Set</string>
     <string name="recording_hint">請開始錄音</string>
     <string name="alarm_time_hint">預約提醒時間：%s</string>
+    <string name="switch_button_hint">只顯示選擇日期的事項</string>
 </resources>

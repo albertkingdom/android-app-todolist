@@ -8,21 +8,13 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
 
+
     <item
-
-        android:icon="@drawable/ic_sort"
-        android:title="Sort"
-        app:showAsAction="always">
-
-        <menu>
-            <item
-                android:id="@+id/action_sort_by_name"
-                android:title="Sort by name" />
-            <item
-                android:id="@+id/action_sort_by_date_created"
-                android:title="Sort by date created" />
-        </menu>
-    </item>
+        android:id="@+id/switchView"
+        android:icon="@drawable/ic_baseline_calendar"
+        android:title="calendarView"
+        app:showAsAction="ifRoom"
+        />
     <item
         android:id="@+id/action_hide_completed"
         android:checkable="true"

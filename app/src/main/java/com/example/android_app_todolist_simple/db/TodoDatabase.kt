@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
 //    abstract fun getTodoDao():TodoDao
 //}
 
-@Database(entities = [Todo::class],version = 4, autoMigrations = [AutoMigration (from = 3, to = 4)], exportSchema = true)
+@Database(entities = [Todo::class],version = 5, autoMigrations = [AutoMigration (from = 4, to = 5)], exportSchema = true)
 abstract class TodoDatabase:RoomDatabase() {
     abstract fun getTodoDao():TodoDao
 }
