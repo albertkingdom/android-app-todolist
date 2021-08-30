@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android_app_todolist_simple">
+
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:name=".BaseApplication"
         android:allowBackup="true"
@@ -11,15 +13,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Androidapptodolistsimple">
         <activity
-            android:name=".ui.MainActivity"
-            android:exported="true">
+            android:name=".ui.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true">
+
+        </activity>
+
         <receiver android:name=".alarm.AlarmReceiver" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

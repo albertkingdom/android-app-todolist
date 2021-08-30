@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Android-app-todolist-simple</string>
+    <string name="app_name">Your Last Todo List</string>
     <string name="title_hint">Title</string>
     <string name="detail_hint">Detail</string>
     <string name="add_alarm_label">Add Alarm</string>

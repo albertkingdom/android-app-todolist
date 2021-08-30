@@ -12,7 +12,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.example.android_app_todolist_simple"
+        applicationId "com.albertkingdom.your_last_todolist"
         minSdk 21
         targetSdk 30
         versionCode 1
