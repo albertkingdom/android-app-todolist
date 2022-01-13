@@ -56,7 +56,7 @@ class AddEditFragment : Fragment() {
     ): View {
         _binding = FragmentAddEditBinding.inflate(inflater, container, false)
 
-        //checkAndGetRecordingPermission()
+        checkAndGetRecordingPermission()
         return _binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
