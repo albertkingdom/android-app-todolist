@@ -10,13 +10,12 @@
         android:name="com.example.android_app_todolist_simple.ui.AddEditFragment"
         android:label="Add or Edit"
         tools:layout="@layout/fragment_add_edit">
-        <argument
-            android:name="id"
-            app:argType="integer" />
         <action
             android:id="@+id/action_addEditFragment_to_listFragment"
             app:destination="@id/listFragment"
             app:popUpTo="@id/listFragment" />
+        <argument android:name="todoId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/listFragment"

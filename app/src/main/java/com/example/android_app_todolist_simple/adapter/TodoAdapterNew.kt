@@ -1,7 +1,6 @@
-package com.example.android_app_todolist_simple.todolist
+package com.example.android_app_todolist_simple.adapter
 
 import android.graphics.Paint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +11,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android_app_todolist_simple.R
-import com.example.android_app_todolist_simple.databinding.ItemBinding
 import com.example.android_app_todolist_simple.db.Todo
 
 /**
- * todo: refactor with viewbinding and listadapter
+ * todo: refactor with viewbinding
  */
 class TodoAdapterNew(private val onItemClicked:(Todo)->Unit, private val onEditTodo:(Todo)->Unit):
     ListAdapter<Todo, TodoAdapterNew.TodoViewHolder>(DiffCallback) {

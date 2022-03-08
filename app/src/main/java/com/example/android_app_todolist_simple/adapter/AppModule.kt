@@ -1,4 +1,4 @@
-package com.example.android_app_todolist_simple.todolist
+package com.example.android_app_todolist_simple.adapter
 
 import android.content.Context
 import androidx.room.Room
@@ -7,7 +7,6 @@ import com.example.android_app_todolist_simple.others.Constants.TODO_DATABASE_NA
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton

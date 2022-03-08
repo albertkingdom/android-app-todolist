@@ -7,26 +7,19 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.applandeo.materialcalendarview.CalendarDay
 import com.applandeo.materialcalendarview.EventDay
 import com.applandeo.materialcalendarview.listeners.OnDayClickListener
 import com.example.android_app_todolist_simple.R
 import com.example.android_app_todolist_simple.databinding.FragmentListBinding
 import com.example.android_app_todolist_simple.db.Todo
-import com.example.android_app_todolist_simple.todolist.TodoAdapterNew
+import com.example.android_app_todolist_simple.adapter.TodoAdapterNew
 import com.example.android_app_todolist_simple.ui.viewmodels.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.*
+
 
 
 @AndroidEntryPoint
@@ -35,10 +28,11 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     lateinit var todoAdapter: TodoAdapterNew
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    val events: MutableList<EventDay> = ArrayList() //events list for calendar
-    var withInRangeTodoList = listOf<Todo>() // filtered todos list for calendar
-    var allTodoList = listOf<Todo>()
 
+
+    companion object {
+        const val TAG = "ListFragment"
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,55 +51,19 @@ class ListFragment : Fragment(R.layout.fragment_list) {
         recyclerView.adapter = todoAdapter
 
 
-
-        // get all todos from db
-        lifecycle.coroutineScope.launch {
-            // get the start time in ms of today
-            val date = Calendar.getInstance().get(Calendar.DATE)
-            val month = Calendar.getInstance().get(Calendar.MONTH)
-            val year = Calendar.getInstance().get(Calendar.YEAR)
-            val today = Calendar.getInstance()
-            today.set(year, month, date, 0, 0, 0)
-
-
-
-            viewModel.getAllTodos().collect {
-                allTodoList = it
-                toGetSpecificDateTodos(today, it)
-                /** Add icon to calendar if the specific date have todos
-                 *
-                  */
-                withContext(Dispatchers.Default) {
-
-                    for (todo in it) {
-                        val calendar = Calendar.getInstance()
-                        // set time to createdTime of todo
-                        if (todo.createdTime != null) calendar.timeInMillis = todo.createdTime
-
-                        events.add(EventDay(calendar, R.drawable.ic_baseline_star))
-
-                    }
-                }
-
-                binding.calendarView.setEvents(events)
-            }
-
-        }
-
-
         // click button to navigate to add_edit fragment
         binding.addTask.setOnClickListener {
+
             findNavController().navigate(
-                ListFragmentDirections.actionListFragmentToAddEditFragment(
-                    -1
-                )
+               ListFragmentDirections.actionListFragmentToAddEditFragment(-1)
             )
         }
         //show menu
         setHasOptionsMenu(true)
 
         // swipe to delete
-        ItemTouchHelper(object:ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT){
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -115,46 +73,44 @@ class ListFragment : Fragment(R.layout.fragment_list) {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                 val todo = todoAdapter.currentList[viewHolder.absoluteAdapterPosition]
+                val todo = todoAdapter.currentList[viewHolder.absoluteAdapterPosition]
                 viewModel.delTodo(todo)
 
                 //undo delete operation
-                Snackbar.make(requireView(),"one todo is deleted !", Snackbar.LENGTH_LONG).setAction("Undo"){
-                    viewModel.insertTodo(todo)
-                }.show()
+                Snackbar.make(requireView(), "one todo is deleted !", Snackbar.LENGTH_LONG)
+                    .setAction("Undo") {
+                        viewModel.insertTodo(todo)
+                    }.show()
             }
         }).attachToRecyclerView(recyclerView)
 
+        // set the current date as selected date in view model
+        val currentSelectDate = binding.calendarView.selectedDates.first()
+
+        viewModel.selectedCalendarDay.value = currentSelectDate
         /**
          * click calendar date to display todos created on that date
          */
         binding.calendarView.setOnDayClickListener(object : OnDayClickListener {
             override fun onDayClick(eventDay: EventDay) {
 
-                val clickedDay = eventDay.calendar
 
-                lifecycle.coroutineScope.launch {
-                    try {
-                        viewModel.getAllTodos().collect {
-                            toGetSpecificDateTodos(clickedDay, it)
-                        }
+                viewModel.selectedCalendarDay.value = eventDay.calendar
+                Log.d(TAG, "clickedDay is ${viewModel.selectedCalendarDay.value}")
 
-                    } catch (e: Throwable) {
-                        Log.e("calendar error", e.toString())
-                    }
-
-                }
             }
 
         })
+        // observe livedata
+        viewModel.filteredTodoList.observe(viewLifecycleOwner, {
+//            println("all todos $it")
+            todoAdapter.submitList(it)
 
-        binding.switchButton.setOnCheckedChangeListener { button, isChecked ->
+        })
+        binding.switchButton.isChecked = viewModel.displaySpecificDayTodos.value!!
+        binding.switchButton.setOnCheckedChangeListener { _, isChecked ->
 
-            if(isChecked){
-                todoAdapter.submitList(withInRangeTodoList)
-            }else{
-                todoAdapter.submitList(allTodoList)
-            }
+            viewModel.displaySpecificDayTodos.value = isChecked
         }
 
     }
@@ -190,13 +146,18 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.switchView -> {
-                if(item.title == "calendarView"){
+                if (item.title == "calendarView") {
                     item.title = "listView"
-                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_list, null)
+                    item.icon =
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_list, null)
                     binding.calendarView.visibility = View.GONE
-                }else{
+                } else {
                     item.title = "calendarView"
-                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_calendar, null)
+                    item.icon = ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_baseline_calendar,
+                        null
+                    )
                     binding.calendarView.visibility = View.VISIBLE
                 }
 
@@ -223,23 +184,6 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     private fun editTodo(todo: Todo) {
         val action = ListFragmentDirections.actionListFragmentToAddEditFragment(todo.id)
         findNavController().navigate(action)
-    }
-
-    private suspend fun toGetSpecificDateTodos(day: Calendar, todoSource: MutableList<Todo>) {
-
-            withContext(Dispatchers.Default) {
-                withInRangeTodoList = todoSource.filter { todo ->
-                    (todo.createdTime != null) && (todo.createdTime > day.timeInMillis) &&
-                            (todo.createdTime < day.timeInMillis + 86400000)
-
-                }
-            }
-            if (binding.switchButton.isChecked) {
-                todoAdapter.submitList(withInRangeTodoList)
-            } else {
-                todoAdapter.submitList(todoSource)
-            }
-
     }
 
 

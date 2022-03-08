@@ -19,6 +19,13 @@
             android:layout_height="wrap_content"
             android:hint="@string/title_hint">
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/is_todo_complete_switch"
+                android:checked="false"
+                android:paddingHorizontal="10dp"/>
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

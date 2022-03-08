@@ -4,15 +4,10 @@ import android.app.Dialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.text.format.DateFormat.is24HourFormat
 import android.util.Log
-import android.view.View
-import android.widget.TextView
 import android.widget.TimePicker
-import androidx.core.app.BundleCompat
 import androidx.fragment.app.DialogFragment
 import com.example.android_app_todolist_simple.alarm.AlarmService
-import com.example.android_app_todolist_simple.db.Todo
 import java.util.*
 
 class TimePickerFragment(val callback:(Calendar)->Unit, val todoBundle: Bundle) : DialogFragment(), TimePickerDialog.OnTimeSetListener {

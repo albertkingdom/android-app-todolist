@@ -6,14 +6,11 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -28,18 +25,18 @@ import com.example.android_app_todolist_simple.R
 import com.example.android_app_todolist_simple.alarm.AlarmService
 import com.example.android_app_todolist_simple.databinding.FragmentAddEditBinding
 import com.example.android_app_todolist_simple.db.Todo
+import com.example.android_app_todolist_simple.ui.viewmodels.AddEditViewModel
 import com.example.android_app_todolist_simple.ui.viewmodels.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
 class AddEditFragment : Fragment() {
-    val viewModel: MainViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
+    private val addEditViewModel: AddEditViewModel by viewModels()
     val navigationArgs: AddEditFragmentArgs by navArgs()
     lateinit var _binding: FragmentAddEditBinding
     val binding get() = _binding
@@ -63,40 +60,39 @@ class AddEditFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        val id = navigationArgs.id
+        val id = navigationArgs.todoId
+        mainViewModel.todoId.value = id
 
         // edit existing to-do case
         if (id != -1) {
-            lifecycle.coroutineScope.launch {
-
-                viewModel.getSpecificTodo(id).collect { it ->
-
-                    binding.apply {
-                        editTitle.editText?.setText(it.todoTitle)
-                        editDetail.editText?.setText(it.todoDetail)
-                    }
-                    //show alarm time
-                    if(it.alarmTime != null){
-                        // check the alarm time is after current time
-                        if(Date(it.alarmTime).after(Date())) {
-
-                            binding.alarmText.text = resources.getString(R.string.alarm_time_hint,
-                                SimpleDateFormat("h:mm a").format(Date(it.alarmTime)))
-                            binding.cancelAlarm.isEnabled = true
-                        }
-                    }
-                    // already had recording file
-                    if (it.audioRecord != null) {
-                        fileName = it.audioRecord.toString()
-
-                        binding.recordFileCardView.visibility = View.VISIBLE
-                        binding.recordingTime.text = SimpleDateFormat("MM/dd h:mm a").format(Date(it.audioRecord.toLong()))
-                    }
-
-                    createdTime = it.createdTime
-
+            mainViewModel.editTodoDetail.observe(viewLifecycleOwner) { todo->
+                binding.apply {
+                    editTitle.editText?.setText(todo.todoTitle)
+                    editDetail.editText?.setText(todo.todoDetail)
+                    switchButton.isChecked = todo.isChecked
                 }
+                //show alarm time
+                if(todo.alarmTime != null){
+                    // check the alarm time is after current time
+                    if(Date(todo.alarmTime).after(Date())) {
+
+                        binding.alarmText.text = resources.getString(R.string.alarm_time_hint,
+                            SimpleDateFormat("h:mm a").format(Date(todo.alarmTime)))
+                        binding.cancelAlarm.isEnabled = true
+                    }
+                }
+                // already had recording file
+                if (todo.audioRecord != null) {
+                    fileName = todo.audioRecord.toString()
+
+                    binding.recordFileCardView.visibility = View.VISIBLE
+                    binding.recordingTime.text = SimpleDateFormat("MM/dd h:mm a").format(Date(todo.audioRecord.toLong()))
+                }
+
+                createdTime = todo.createdTime
             }
+
+
 
             _binding.saveTodo.setOnClickListener {
 
@@ -106,7 +102,8 @@ class AddEditFragment : Fragment() {
         }
         // add new to-do case
         if (id == -1) {
-            viewModel.alarmTime = null
+
+            addEditViewModel.alarmTime = null
             _binding.saveTodo.setOnClickListener {
 
                 addItem()
@@ -132,7 +129,7 @@ class AddEditFragment : Fragment() {
         // cancel the alarm
         _binding.cancelAlarm.setOnClickListener {
 
-            viewModel.alarmTime = null
+            addEditViewModel.alarmTime = null
             updateItem(id)
             binding.alarmText.text = "No Alarm Set"
             AlarmService(requireContext()).cancelAlarm(todoBundle)
@@ -146,14 +143,14 @@ class AddEditFragment : Fragment() {
     private fun updateItem(id: Int) {
         val newTodoTitle = _binding.editTitle.editText?.text.toString()
         val newTodoDetail = _binding.editDetail.editText?.text.toString()
-        if (viewModel.isEntryValid(newTodoTitle)){
-            viewModel.updateTodo(
+        if (addEditViewModel.isEntryValid(newTodoTitle)){
+            mainViewModel.updateTodo(
                 Todo(
                     id = id,
                     todoTitle = newTodoTitle,
                     todoDetail = newTodoDetail,
-                    isChecked = false,
-                    alarmTime = viewModel.alarmTime,
+                    isChecked = binding.switchButton.isChecked,
+                    alarmTime = addEditViewModel.alarmTime,
                     audioRecord = fileName,
                     createdTime = createdTime
                 )
@@ -172,14 +169,14 @@ class AddEditFragment : Fragment() {
     private fun addItem() {
         val newTodoTitle = _binding.editTitle.editText?.text.toString()
         val newTodoDetail = _binding.editDetail.editText?.text.toString()
-        if(viewModel.isEntryValid(newTodoTitle)){
-            viewModel.insertTodo(
+        if(addEditViewModel.isEntryValid(newTodoTitle)){
+            mainViewModel.insertTodo(
                 Todo(
                     id = 0,
                     todoTitle = newTodoTitle,
                     todoDetail = newTodoDetail,
-                    isChecked = false,
-                    alarmTime = viewModel.alarmTime,
+                    isChecked = binding.switchButton.isChecked,
+                    alarmTime = addEditViewModel.alarmTime,
                     audioRecord = fileName,
                     createdTime = Calendar.getInstance().timeInMillis
                 )
@@ -192,7 +189,7 @@ class AddEditFragment : Fragment() {
     }
     private fun updateAlarmTimeText(c: Calendar){
         _binding.alarmText.text = resources.getString(R.string.alarm_time_hint, SimpleDateFormat("h:mm a").format(c?.time))
-        viewModel.alarmTime = c.timeInMillis
+        addEditViewModel.alarmTime = c.timeInMillis
         _binding.cancelAlarm.isEnabled = true
     }
 
@@ -319,15 +316,15 @@ class AddEditFragment : Fragment() {
     }
 
     private fun delRecording() {
-        val id = navigationArgs.id
+        val id = mainViewModel.todoId.value!!
         val newTodoTitle = _binding.editTitle.editText?.text.toString()
         val newTodoDetail = _binding.editDetail.editText?.text.toString()
-        viewModel.updateTodo(
+        mainViewModel.updateTodo(
             Todo(id = id,
                 todoTitle = newTodoTitle,
                 todoDetail = newTodoDetail,
-                isChecked = false,
-                alarmTime = viewModel.alarmTime,
+                isChecked = binding.switchButton.isChecked,
+                alarmTime = addEditViewModel.alarmTime,
                 audioRecord = null,
                 createdTime = createdTime
             )
